@@ -7,37 +7,50 @@ const Hash = use('Hash')
 const Model = use('Model')
 
 class User extends Model {
-  static boot () {
-    super.boot()
+    static boot() {
+        super.boot()
+
+        /**
+         * A hook to hash the user password before saving
+         * it to the database.
+         */
+        this.addHook('beforeSave', async (userInstance) => {
+            if (userInstance.dirty.password) {
+                userInstance.password = await Hash.make(userInstance.password)
+            }
+        })
+    }
+
+    static get createdAtColumn() {
+        return 'registered_at'
+    }
+
+    static get hidden() {
+        return ['password']
+    }
 
     /**
-     * A hook to hash the user password before saving
-     * it to the database.
+     * A relationship on tokens is required for auth to
+     * work. Since features like `refreshTokens` or
+     * `rememberToken` will be saved inside the
+     * tokens table.
+     *
+     * @method tokens
+     *
+     * @return {Object}
      */
-    this.addHook('beforeSave', async (userInstance) => {
-      if (userInstance.dirty.password) {
-        userInstance.password = await Hash.make(userInstance.password)
-      }
-    })
-  }
+    tokens() {
+        return this.hasMany('App/Models/Token')
+    }
 
-  static get createdAtColumn(){
-    return 'registered_at'
-  }
+    posts() {
+        return this.hasMany('App/Models/Post')
+    }
 
-  /**
-   * A relationship on tokens is required for auth to
-   * work. Since features like `refreshTokens` or
-   * `rememberToken` will be saved inside the
-   * tokens table.
-   *
-   * @method tokens
-   *
-   * @return {Object}
-   */
-  tokens () {
-    return this.hasMany('App/Models/Token')
-  }
+    comments() {
+        return this.hasMany('App/Models/Comment')
+    }
+
 }
 
 module.exports = User

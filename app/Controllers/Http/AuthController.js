@@ -14,21 +14,23 @@ class AuthController {
         if (email === undefined && (typeof username) === 'string')
             user = await User.findBy("username", username)
 
-        const authenticated = await auth
+        const jwt = await auth
             .withRefreshToken()
             .attempt(email || user.email, password)
 
-        response.json(authenticated)
+        response.json(jwt)
 
     }
 
-    async logout({ auth, request, response }) {
+    async logout({ auth, response }) {
 
-        await auth
+        /** @type {Number} number of affected rows */
+        const revoked = await auth
             .authenticator('jwt')
             .revokeTokens()
 
-        response.send("Logged out")
+        if (revoked > 0) response.send("Logged out")
+        else response.badRequest('Not logged in or no token provided')
     }
 
 }

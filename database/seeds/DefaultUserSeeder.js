@@ -13,13 +13,15 @@
 /** @type {import('@adonisjs/lucid/src/Factory')} */
 const Factory = use('Factory')
 
+/**@type {import('@adonisjs/framework/src/Hash')} */
+const Hash = use('Hash')
 // Used only for testing
 
-Factory.blueprint('users', (faker) => {
+Factory.blueprint('users', async (faker) => {
   return {
     username: "mnizarzr",
     email: "contact@mnizarzr.tech",
-    password: 'semuasama', //Hashed in User Model hook
+    password: await Hash.make('semuasama'), //Hashed in User Model hook
     display_name: "Muhammad Nizar"
   }
 })

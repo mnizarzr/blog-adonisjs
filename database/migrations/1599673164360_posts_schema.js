@@ -4,15 +4,16 @@
 const Schema = use('Schema')
 
 class PostsSchema extends Schema {
+
   up() {
     this.create('posts', (table) => {
       table.bigIncrements()
       table.string('title').notNullable()
       table.text('content').notNullable()
       table.string('header_image', 100).unique()
-      table.enu('comment_status', ['open', 'closed']).defaultTo('open')
+      table.enu('comment_status', ['open', 'closed'], { useNative: true, enumName: 'commentable' }).notNullable().defaultTo('open')
       table.integer('comment_count').defaultTo(0)
-      table.enu('status', ['published', 'draft']).notNullable()
+      table.enu('status', ['publish', 'draft'], { useNative: true, enumName: 'post_status' }).notNullable()
 
       table.bigInteger('user_id').unsigned()
       table.foreign('user_id').references('users.id')
